@@ -9,14 +9,12 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-               
                 git branch: 'main', url: 'https://github.com/Avashneupane9857/PositivusLandingPage'
             }
         }
         stage('Build Docker Image') {
             steps {
                 script {
-                   
                     docker.build("$DOCKER_IMAGE:latest")
                 }
             }
@@ -24,22 +22,20 @@ pipeline {
         stage('Push Docker Image to Docker Hub') {
             steps {
                 script {
-                    
                     docker.withRegistry('https://registry.hub.docker.com', DOCKER_HUB_CREDENTIALS) {
                         docker.image("$DOCKER_IMAGE:latest").push()
                     }
                 }
             }
-             stage('Deploy on EC2') {
+        }
+        stage('Deploy on EC2') {
             steps {
                 sshagent(['EC2_SSH_CREDENTIALS']) {
                     sh """
-                    ssh -o StrictHostKeyChecking=no ec2-user@$EC2_HOST 'docker pull $DOCKER_IMAGE:latest && docker stop myapp || true && docker rm myapp || true && docker run -d --name myapp -p 80:80 $DOCKER_IMAGE:latest'
+                    ssh -o StrictHostKeyChecking=no ubuntu@$EC2_HOST 'docker pull $DOCKER_IMAGE:latest && docker stop myapp || true && docker rm myapp || true && docker run -d --name myapp -p 80:80 $DOCKER_IMAGE:latest'
                     """
                 }
             }
         }
-        }
     }
 }
-
