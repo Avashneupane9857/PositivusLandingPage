@@ -32,7 +32,7 @@ pipeline {
             steps {
                 sshagent(['EC2_SSH_CREDENTIALS']) {
                     sh """
-                    ssh -o StrictHostKeyChecking=no ubuntu@$EC2_HOST 'docker pull $DOCKER_IMAGE:latest && docker stop myapp || true && docker rm myapp || true && docker run -d --name myapp -p 80:80 $DOCKER_IMAGE:latest'
+                    ssh -o StrictHostKeyChecking=no ubuntu@$EC2_HOST 'docker pull $DOCKER_IMAGE:latest && docker stop myapp || true && docker rm myapp || true && docker run -d --name myapp -p 80:5173 $DOCKER_IMAGE:latest'
                     """
                 }
             }
