@@ -3,6 +3,8 @@ pipeline {
     environment {
         DOCKER_HUB_CREDENTIALS = 'dockerhub'
         DOCKER_IMAGE = 'avash9857/positivus'
+        EC2_SSH_CREDENTIALS = 'ec2-ssh-id'
+        EC2_HOST = '54.197.20.203'
     }
     stages {
         stage('Clone Repository') {
@@ -14,7 +16,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Building the Docker image
+                   
                     docker.build("$DOCKER_IMAGE:latest")
                 }
             }
@@ -28,6 +30,15 @@ pipeline {
                     }
                 }
             }
+             stage('Deploy on EC2') {
+            steps {
+                sshagent(['EC2_SSH_CREDENTIALS']) {
+                    sh """
+                    ssh -o StrictHostKeyChecking=no ec2-user@$EC2_HOST 'docker pull $DOCKER_IMAGE:latest && docker stop myapp || true && docker rm myapp || true && docker run -d --name myapp -p 80:80 $DOCKER_IMAGE:latest'
+                    """
+                }
+            }
+        }
         }
     }
 }
