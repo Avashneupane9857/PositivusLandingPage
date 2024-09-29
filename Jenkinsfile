@@ -7,12 +7,14 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git 'https://github.com/Avashneupane9857/PositivusLandingPage'
+               
+                git branch: 'main', url: 'https://github.com/Avashneupane9857/PositivusLandingPage'
             }
         }
         stage('Build Docker Image') {
             steps {
                 script {
+                    // Building the Docker image
                     docker.build("$DOCKER_IMAGE:latest")
                 }
             }
@@ -20,6 +22,7 @@ pipeline {
         stage('Push Docker Image to Docker Hub') {
             steps {
                 script {
+                    
                     docker.withRegistry('https://registry.hub.docker.com', DOCKER_HUB_CREDENTIALS) {
                         docker.image("$DOCKER_IMAGE:latest").push()
                     }
@@ -28,3 +31,4 @@ pipeline {
         }
     }
 }
+
